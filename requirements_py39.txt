@@ -1,3 +1,6 @@
+# Python 3.9 兼容版本的依賴
+# 如果使用 Python 3.9，請使用此檔案：pip install -r requirements_py39.txt
+
 altgraph==0.17.4
 ane_transformers==0.1.1
 annotated-types==0.7.0
@@ -6,8 +9,7 @@ attrs==23.2.0
 cattrs==23.2.3
 certifi==2024.6.2
 charset-normalizer==3.3.2
-# coremltools==7.2  # 暫時註解，因為與 macOS 26 有兼容性問題
-# 如果需要 CoreML 功能，請執行: pip install --upgrade coremltools
+coremltools==7.2
 distro==1.9.0
 filelock==3.15.4
 fsspec==2024.6.0
@@ -51,4 +53,4 @@ typing_extensions==4.12.2
 urllib3==2.2.2
 pykakasi
 customtkinter>=5.2.0
-python-dotenv>=1.0.0
+

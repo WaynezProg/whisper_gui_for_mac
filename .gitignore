@@ -141,3 +141,30 @@ cython_debug/
 
 # VS Code
 .vscode/
+
+# Whisper GUI specific
+logs/
+*.log
+.env
+.env.*
+!env.example
+
+# Test and diagnostic files
+test_*.py
+diagnose_*.py
+find_*.py
+
+# Backup virtual environments
+venv_backup/
+venv_system/
+venv_*/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
