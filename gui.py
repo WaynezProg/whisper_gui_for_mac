@@ -177,8 +177,25 @@ def translate_srt_files():
                 if pause_flag.is_set():
                     logger.warning("翻譯已暫停")
                     break
-                srt_file = file.replace('.wav', '.srt').replace('.mp4', '.srt')
-                if os.path.exists(srt_file):
+                
+                # 獲取基礎檔案路徑（不含副檔名）
+                base_path = os.path.splitext(file)[0]
+                file_dir = os.path.dirname(file) if os.path.dirname(file) else '.'
+                
+                # 嘗試尋找 SRT 檔案（優先順序：_coreml.srt > _cpu.srt > .srt）
+                srt_file = None
+                possible_srt_files = [
+                    os.path.join(file_dir, f"{os.path.basename(base_path)}_coreml.srt"),
+                    os.path.join(file_dir, f"{os.path.basename(base_path)}_cpu.srt"),
+                    os.path.join(file_dir, f"{os.path.basename(base_path)}.srt")
+                ]
+                
+                for possible_srt in possible_srt_files:
+                    if os.path.exists(possible_srt):
+                        srt_file = possible_srt
+                        break
+                
+                if srt_file and os.path.exists(srt_file):
                     logger.info(f"翻譯檔案: {os.path.basename(srt_file)}")
                     # 不指定 output_srt_path，讓 translate_srt 自動生成帶語言後綴的檔案名
                     ai_translate.translate_srt(srt_file, output_srt_path=None, target_language=target_language, pause_flag=pause_flag)
@@ -186,6 +203,9 @@ def translate_srt_files():
                     # 更新進度
                     progress = (translated_count / len(files)) * 100
                     update_progress(progress)
+                else:
+                    logger.warning(f"找不到對應的 SRT 檔案: {os.path.basename(file)}")
+                    logger.debug(f"已嘗試尋找: {[os.path.basename(f) for f in possible_srt_files]}")
             logger.info(f"翻譯成功完成，共翻譯 {translated_count} 個檔案")
             # 先更新狀態，再顯示訊息框
             update_status(f"✓ 翻譯完成（{translated_count}/{len(files)} 個檔案）", "INFO")
@@ -335,8 +355,25 @@ def japanese_to_katakana():
                 if pause_flag.is_set():
                     logger.warning("轉換已暫停")
                     break
-                srt_file = file.replace('.wav', '.srt').replace('.mp4', '.srt')
-                if os.path.exists(srt_file):
+                
+                # 獲取基礎檔案路徑（不含副檔名）
+                base_path = os.path.splitext(file)[0]
+                file_dir = os.path.dirname(file) if os.path.dirname(file) else '.'
+                
+                # 嘗試尋找 SRT 檔案（優先順序：_coreml.srt > _cpu.srt > .srt）
+                srt_file = None
+                possible_srt_files = [
+                    os.path.join(file_dir, f"{os.path.basename(base_path)}_coreml.srt"),
+                    os.path.join(file_dir, f"{os.path.basename(base_path)}_cpu.srt"),
+                    os.path.join(file_dir, f"{os.path.basename(base_path)}.srt")
+                ]
+                
+                for possible_srt in possible_srt_files:
+                    if os.path.exists(possible_srt):
+                        srt_file = possible_srt
+                        break
+                
+                if srt_file and os.path.exists(srt_file):
                     logger.info(f"轉換檔案: {os.path.basename(srt_file)}")
                     # 使用 get_unique_output_path 生成不重複的檔案名
                     from actions import get_unique_output_path
@@ -347,6 +384,9 @@ def japanese_to_katakana():
                     # 更新進度
                     progress = ((i + 1) / len(files)) * 100
                     update_progress(progress)
+                else:
+                    logger.warning(f"找不到對應的 SRT 檔案: {os.path.basename(file)}")
+                    logger.debug(f"已嘗試尋找: {[os.path.basename(f) for f in possible_srt_files]}")
             logger.info(f"日文轉片假名成功完成，共轉換 {converted_count} 個檔案")
             update_status(f"✓ 片假名轉換完成（{converted_count}/{len(files)} 個檔案）", "INFO")
             root.after(0, lambda: messagebox.showinfo("完成", f"日文轉換成片假名完成。\n\n已轉換 {converted_count} 個檔案。"))

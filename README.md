@@ -1,4 +1,5 @@
 # Whisper Transcription and Translation GUI
+[![Demo Video](https://img.youtube.com/vi/2BLUM1b18Dg/0.jpg)](https://youtu.be/2BLUM1b18Dg)
 
 ## 📖 介紹
 

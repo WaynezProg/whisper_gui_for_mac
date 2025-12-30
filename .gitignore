@@ -158,6 +158,7 @@ find_*.py
 venv_backup/
 venv_system/
 venv_*/
+example/
 
 # Build artifacts
 build/
