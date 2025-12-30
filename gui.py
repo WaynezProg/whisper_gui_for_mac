@@ -1,6 +1,5 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox  # 對話框仍使用 tkinter
-from tkinterdnd2 import TkinterDnD, DND_FILES
 import threading
 import queue
 import logging
@@ -277,32 +276,6 @@ def update_file_display():
             file_listbox.insert("end", f"{i}. {os.path.basename(file)}\n")
         file_listbox.configure(state="disabled")
 
-# 處理拖放事件
-def on_drop(event):
-    try:
-        # TkinterDnD 的資料格式
-        # event.data 可能是字串或列表
-        if isinstance(event.data, str):
-            files = root.tk.splitlist(event.data)
-        else:
-            files = event.data
-        
-        # 過濾出支援的檔案格式
-        supported_files = [
-            f for f in files 
-            if f.lower().endswith(('.wav', '.mp4'))
-        ]
-        
-        if supported_files:
-            add_files(supported_files)
-            print(f"✓ 已添加 {len(supported_files)} 個檔案")
-        else:
-            print("⚠️  沒有支援的檔案格式（需要 .wav 或 .mp4）")
-    except Exception as e:
-        print(f"❌ 拖放處理錯誤: {e}")
-        import traceback
-        traceback.print_exc()
-
 # 暫停任務
 def pause_task():
     logger.info("用戶點擊暫停按鈕")
@@ -507,31 +480,6 @@ def run():
     # 版權信息
     license_label = ctk.CTkLabel(root, text="MIT License\n製作: Wayne", font=ctk.CTkFont(size=10))
     license_label.pack(pady=10)
-
-    # 綁定拖曳事件
-    # 注意：CustomTkinter 與 tkinterdnd2 目前無法完美整合
-    # 原因：tkinterdnd2 需要 TkinterDnD.Tk() 才能載入 Tcl 擴展
-    #      但 CustomTkinter 使用 ctk.CTk()，兩者無法直接整合
-    # 
-    # 解決方案：
-    # 1. 使用「添加」按鈕選擇檔案（推薦，功能完整）
-    # 2. 如果需要拖放功能，可以考慮回退到原生 Tkinter
-    # 
-    # 這裡我們嘗試註冊，但預期會失敗，所以不顯示錯誤
-    try:
-        # 嘗試在 root 的底層 widget 上註冊（這通常會失敗）
-        root_tk = root.winfo_toplevel()
-        if hasattr(root_tk, 'drop_target_register'):
-            root_tk.drop_target_register(DND_FILES)
-            root_tk.dnd_bind('<<Drop>>', on_drop)
-            print("✓ 拖放功能已啟用")
-        else:
-            # 靜默失敗，不顯示錯誤訊息
-            pass
-    except:
-        # 靜默失敗，不顯示錯誤訊息
-        # 拖放功能不可用是預期的，因為 CustomTkinter 的限制
-        pass
 
     root.mainloop()
 

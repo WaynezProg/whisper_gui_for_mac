@@ -99,7 +99,7 @@ WHISPER_MODEL_PATH=/Users/yourname/whisper.cpp/models/ggml-large-v3.bin
 ### 步驟 1: 複製範例檔案
 
 ```bash
-cd /Users/waynetu/my_github_repo/whisper_gui
+cd /Users/waynetu/my_github_repo/whisper_gui_for_mac
 cp env.example .env
 ```
 

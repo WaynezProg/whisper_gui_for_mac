@@ -3,7 +3,7 @@
 ## 專案結構
 
 ```
-whisper_gui/
+whisper_gui_for_mac/
 ├── main.py              # 應用程式入口
 ├── gui.py               # GUI 主程式（CustomTkinter）
 ├── actions.py           # 轉錄動作處理

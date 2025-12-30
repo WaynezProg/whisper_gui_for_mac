@@ -2,7 +2,7 @@
 
 ## 📖 介紹
 
-這是一個基於 Whisper 的語音轉錄和翻譯 GUI 應用程式，支援 **CoreML** 和 **CPU** 兩種模式。使用者可以拖放音頻文件進行轉錄，並將結果翻譯成多種語言。
+這是一個基於 Whisper 的語音轉錄和翻譯 GUI 應用程式，支援 **CoreML** 和 **CPU** 兩種模式。使用者可以添加音頻文件進行轉錄，並將結果翻譯成多種語言。
 
 ### 主要功能
 
@@ -29,7 +29,7 @@
 
 ```bash
 git clone <repository-url>
-cd whisper_gui
+cd whisper_gui_for_mac
 ```
 
 #### 2. 建立虛擬環境
@@ -180,7 +180,7 @@ python main.py
 
 1. **添加音頻文件**
    - 點擊「添加」按鈕選擇檔案
-   - 或直接拖放檔案到列表區域
+   - 點擊「添加資料夾」按鈕選擇整個資料夾
    - 支援 `.wav` 和 `.mp4` 格式
 
 2. **選擇語言**
@@ -339,7 +339,7 @@ pip uninstall coremltools
 ### 專案結構
 
 ```
-whisper_gui/
+whisper_gui_for_mac/
 ├── main.py              # 應用程式入口
 ├── gui.py               # GUI 主程式（CustomTkinter）
 ├── actions.py           # 轉錄動作處理（CoreML/CPU）
@@ -411,7 +411,6 @@ MIT License
 ### 最新版本
 
 - ✅ 遷移到 CustomTkinter（現代化 UI）
-- ✅ 支援拖放檔案
 - ✅ 日文片假名轉換功能
 - ✅ 改進錯誤處理
 - ✅ 完整的文檔

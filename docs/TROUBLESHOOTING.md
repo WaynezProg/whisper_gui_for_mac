@@ -17,7 +17,7 @@ ImportError: dlopen(...): Library not loaded: /opt/homebrew/opt/tcl-tk/lib/libtk
 
 ```bash
 # 重新建立虛擬環境，使用系統 Python
-cd /Users/waynetu/my_github_repo/whisper_gui
+cd /Users/waynetu/my_github_repo/whisper_gui_for_mac
 mv venv venv_backup
 /usr/bin/python3 -m venv venv
 source venv/bin/activate
