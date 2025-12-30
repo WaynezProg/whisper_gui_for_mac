@@ -8,20 +8,42 @@ import os
 # import ai_translate  # 延遲導入，避免 macOS 版本檢查問題
 from pykakasi import kakasi
 from logger import logger, GUIHandler, setup_logger
+from i18n import t, load_language, get_current_language, get_available_languages
 
 # 全域變數：儲存檔案列表
 _file_list = []
+
+# 翻譯日誌訊息的輔助函數
+def log_t(key, level="info", **kwargs):
+    """記錄翻譯後的日誌訊息"""
+    message = t(f"log.{key}", key)
+    # 如果有參數，進行格式化
+    if kwargs:
+        try:
+            message = message.format(**kwargs)
+        except KeyError:
+            # 如果格式化失敗，返回原始訊息
+            pass
+    if level == "info":
+        logger.info(message)
+    elif level == "warning":
+        logger.warning(message)
+    elif level == "error":
+        logger.error(message)
+    elif level == "debug":
+        logger.debug(message)
+    return message
 
 # 添加文件到列表框
 def add_files(files=None):
     global _file_list
     if files is None:
         files = filedialog.askopenfilenames(filetypes=[("WAV files", "*.wav"), ("MP4 files", "*.mp4")])
-    logger.info(f"添加檔案: {len(files) if files else 0} 個")
+    log_t("added_files", count=len(files) if files else 0)
     for file in files:
         if file not in _file_list:
             _file_list.append(file)
-            logger.debug(f"已添加檔案: {os.path.basename(file)}")
+            log_t("file_added", level="debug", filename=os.path.basename(file))
     update_file_display()
 
 # 添加資料夾中的文件到列表框
@@ -49,34 +71,34 @@ pause_flag = threading.Event()
 
 # 執行 CoreML Whisper 轉錄
 def coreml_whisper():
-    logger.info("用戶點擊 CoreML 執行按鈕")
-    update_status("正在執行 CoreML 轉錄...", "INFO")
+    log_t("user_clicked_coreml")
+    update_status(t("status.coreml_transcribing"), "INFO")
     files = _file_list.copy()
     language = language_combobox.get()
 
     if not files:
-        logger.warning("用戶嘗試執行但沒有添加檔案")
-        messagebox.showwarning("警告", "請添加音頻文件。")
-        update_status("就緒", "INFO")
+        log_t("no_files_warning", level="warning")
+        messagebox.showwarning(t("message.warning.title", "警告"), t("message.warning.no_files"))
+        update_status(t("status.ready"), "INFO")
         return
 
-    logger.info(f"開始 CoreML Whisper 轉錄，檔案數: {len(files)}, 語言: {language}")
+    log_t("start_coreml", count=len(files), language=language)
 
     # 在新線程中運行 CoreML Whisper
     def run_coreml_whisper():
         try:
             actions.coreml_whisper(files, language, update_progress, pause_flag, update_status)
-            logger.info("CoreML Whisper 轉錄成功完成")
-            update_status("✓ CoreML 轉錄完成", "INFO")
+            log_t("coreml_completed")
+            update_status(t("status.coreml_completed"), "INFO")
             # 使用 root.after() 確保在主線程中顯示 messagebox
-            root.after(0, lambda: messagebox.showinfo("完成", f"CoreML 轉錄完成。\n\n已處理 {len(files)} 個檔案。"))
+            root.after(0, lambda: messagebox.showinfo(t("message.info.completed"), t("message.info.coreml_completed").format(count=len(files))))
         except KeyboardInterrupt:
-            logger.warning("用戶中斷 CoreML Whisper 轉錄")
-            update_status("已取消", "WARNING")
-            root.after(0, lambda: messagebox.showinfo("取消", "轉錄已取消。"))
+            log_t("coreml_cancelled", level="warning")
+            update_status(t("status.cancelled"), "WARNING")
+            root.after(0, lambda: messagebox.showinfo(t("message.info.cancelled", "取消"), t("message.info.cancelled")))
         except Exception as e:
-            logger.exception(f"CoreML Whisper 轉錄發生錯誤: {e}")
-            update_status(f"發生錯誤: {str(e)[:50]}...", "ERROR")
+            logger.exception(t("message.error.generic_error").format(error=str(e)))
+            update_status(t("status.error").format(error=str(e)[:50]), "ERROR")
             error_msg = str(e)
             
             # 特別處理 segmentation fault 錯誤
@@ -98,7 +120,7 @@ def coreml_whisper():
                 error_msg = error_msg[:1000] + "..."
             
             final_error_msg = error_msg  # 閉包變數
-            root.after(0, lambda: messagebox.showerror("錯誤", final_error_msg))
+            root.after(0, lambda: messagebox.showerror(t("message.error.title"), final_error_msg))
             import traceback
             traceback.print_exc()  # 在終端機印出完整錯誤
 
@@ -106,40 +128,40 @@ def coreml_whisper():
 
 # 執行 CPU Whisper 轉錄
 def cpu_whisper():
-    logger.info("用戶點擊 CPU 執行按鈕")
-    update_status("正在執行 CPU 轉錄...", "INFO")
+    log_t("user_clicked_cpu")
+    update_status(t("status.cpu_transcribing"), "INFO")
     files = _file_list.copy()
     language = language_combobox.get()
     translate_to = translate_combobox.get()
 
     if not files:
-        logger.warning("用戶嘗試執行但沒有添加檔案")
-        messagebox.showwarning("警告", "請添加音頻文件。")
-        update_status("就緒", "INFO")
+        log_t("no_files_warning", level="warning")
+        messagebox.showwarning(t("message.warning.title", "警告"), t("message.warning.no_files"))
+        update_status(t("status.ready"), "INFO")
         return
 
-    logger.info(f"開始 CPU Whisper 轉錄，檔案數: {len(files)}, 語言: {language}")
+    log_t("start_cpu", count=len(files), language=language)
 
     # 在新線程中運行 CPU Whisper
     def run_cpu_whisper():
         try:
             actions.cpu_whisper(files, language, translate_to, update_progress, pause_flag, update_status)
-            logger.info("CPU Whisper 轉錄成功完成")
-            update_status("✓ CPU 轉錄完成", "INFO")
-            root.after(0, lambda: messagebox.showinfo("完成", f"CPU 轉錄完成。\n\n已處理 {len(files)} 個檔案。"))
+            log_t("cpu_completed")
+            update_status(t("status.cpu_completed"), "INFO")
+            root.after(0, lambda: messagebox.showinfo(t("message.info.completed"), t("message.info.cpu_completed").format(count=len(files))))
         except KeyboardInterrupt:
-            logger.warning("用戶中斷 CPU Whisper 轉錄")
-            update_status("已取消", "WARNING")
-            root.after(0, lambda: messagebox.showinfo("取消", "轉錄已取消。"))
+            log_t("cpu_cancelled", level="warning")
+            update_status(t("status.cancelled"), "WARNING")
+            root.after(0, lambda: messagebox.showinfo(t("message.info.cancelled", "取消"), t("message.info.cancelled")))
         except Exception as e:
-            logger.exception(f"CPU Whisper 轉錄發生錯誤: {e}")
-            update_status(f"發生錯誤: {str(e)[:50]}...", "ERROR")
+            logger.exception(t("message.error.generic_error").format(error=str(e)))
+            update_status(t("status.error").format(error=str(e)[:50]), "ERROR")
             error_msg = str(e)
             # 截斷過長的錯誤訊息
             if len(error_msg) > 500:
                 error_msg = error_msg[:500] + "..."
             final_error_msg = error_msg  # 閉包變數
-            root.after(0, lambda: messagebox.showerror("錯誤", f"發生錯誤: {final_error_msg}"))
+            root.after(0, lambda: messagebox.showerror(t("message.error.title"), t("message.error.generic_error").format(error=final_error_msg)))
             import traceback
             traceback.print_exc()  # 在終端機印出完整錯誤
 
@@ -147,27 +169,27 @@ def cpu_whisper():
 
 # 執行翻譯
 def translate_srt_files():
-    logger.info("用戶點擊翻譯按鈕")
+    log_t("user_clicked_translate")
     # 延遲導入 ai_translate，避免 macOS 版本檢查問題
     try:
         import ai_translate
     except Exception as e:
-        logger.error(f"無法載入翻譯模組: {e}")
-        messagebox.showerror("錯誤", f"無法載入翻譯模組: {e}\n\n可能是 macOS 版本兼容性問題。")
-        update_status("翻譯功能不可用", "ERROR")
+        logger.error(t("message.error.translation_module_error").format(error=str(e)))
+        messagebox.showerror(t("message.error.title"), t("message.error.translation_module_error").format(error=str(e)))
+        update_status(t("status.translation_unavailable"), "ERROR")
         return
     
-    update_status("正在翻譯...", "INFO")
+    update_status(t("status.translating"), "INFO")
     files = _file_list.copy()
     target_language = translate_combobox.get()
 
     if not files:
-        logger.warning("用戶嘗試翻譯但沒有添加檔案")
-        messagebox.showwarning("警告", "請添加音頻文件。")
-        update_status("就緒", "INFO")
+        log_t("no_files_warning", level="warning")
+        messagebox.showwarning(t("message.warning.title", "警告"), t("message.warning.no_files"))
+        update_status(t("status.ready"), "INFO")
         return
 
-    logger.info(f"開始翻譯，檔案數: {len(files)}, 目標語言: {target_language}")
+    log_t("start_translation", count=len(files), language=target_language)
 
     # 在新線程中運行翻譯
     def run_translate_srt_files():
@@ -175,7 +197,7 @@ def translate_srt_files():
         try:
             for file in files:
                 if pause_flag.is_set():
-                    logger.warning("翻譯已暫停")
+                    log_t("translation_paused", level="warning")
                     break
                 
                 # 獲取基礎檔案路徑（不含副檔名）
@@ -196,7 +218,7 @@ def translate_srt_files():
                         break
                 
                 if srt_file and os.path.exists(srt_file):
-                    logger.info(f"翻譯檔案: {os.path.basename(srt_file)}")
+                    log_t("translating_file", filename=os.path.basename(srt_file))
                     # 不指定 output_srt_path，讓 translate_srt 自動生成帶語言後綴的檔案名
                     ai_translate.translate_srt(srt_file, output_srt_path=None, target_language=target_language, pause_flag=pause_flag)
                     translated_count += 1
@@ -204,19 +226,18 @@ def translate_srt_files():
                     progress = (translated_count / len(files)) * 100
                     update_progress(progress)
                 else:
-                    logger.warning(f"找不到對應的 SRT 檔案: {os.path.basename(file)}")
-                    logger.debug(f"已嘗試尋找: {[os.path.basename(f) for f in possible_srt_files]}")
-            logger.info(f"翻譯成功完成，共翻譯 {translated_count} 個檔案")
+                    log_t("srt_not_found", level="warning", filename=os.path.basename(file))
+            log_t("translation_completed", count=translated_count)
             # 先更新狀態，再顯示訊息框
-            update_status(f"✓ 翻譯完成（{translated_count}/{len(files)} 個檔案）", "INFO")
+            update_status(t("status.translation_completed").format(translated=translated_count, total=len(files)), "INFO")
             # 延遲顯示訊息框，確保狀態先更新
             final_count = translated_count
             final_total = len(files)
-            root.after(100, lambda: messagebox.showinfo("完成", f"翻譯完成。\n\n已翻譯 {final_count} 個檔案。"))
+            root.after(100, lambda: messagebox.showinfo(t("message.info.completed"), t("message.info.translation_completed").format(count=final_count)))
         except Exception as e:
-            logger.exception(f"翻譯發生錯誤: {e}")
-            update_status(f"發生錯誤: {str(e)[:50]}...", "ERROR")
-            root.after(0, lambda: messagebox.showerror("錯誤", f"發生錯誤: {e}"))
+            logger.exception(t("message.error.generic_error").format(error=str(e)))
+            update_status(t("status.error").format(error=str(e)[:50]), "ERROR")
+            root.after(0, lambda: messagebox.showerror(t("message.error.title"), t("message.error.generic_error").format(error=str(e))))
 
     threading.Thread(target=run_translate_srt_files).start()
 
@@ -298,7 +319,7 @@ def update_file_display():
 
 # 暫停任務
 def pause_task():
-    logger.info("用戶點擊暫停按鈕")
+    log_t("user_clicked_pause")
     pause_flag.set()
     update_status("任務已暫停，結果已保存。", "WARNING")
     # pause_task 在主線程中執行，可以直接調用 messagebox
@@ -353,7 +374,7 @@ def japanese_to_katakana():
         try:
             for i, file in enumerate(files):
                 if pause_flag.is_set():
-                    logger.warning("轉換已暫停")
+                    log_t("conversion_paused", level="warning")
                     break
                 
                 # 獲取基礎檔案路徑（不含副檔名）
@@ -374,7 +395,7 @@ def japanese_to_katakana():
                         break
                 
                 if srt_file and os.path.exists(srt_file):
-                    logger.info(f"轉換檔案: {os.path.basename(srt_file)}")
+                    log_t("converting_file", filename=os.path.basename(srt_file))
                     # 使用 get_unique_output_path 生成不重複的檔案名
                     from actions import get_unique_output_path
                     base_path = os.path.splitext(srt_file)[0]
@@ -385,15 +406,14 @@ def japanese_to_katakana():
                     progress = ((i + 1) / len(files)) * 100
                     update_progress(progress)
                 else:
-                    logger.warning(f"找不到對應的 SRT 檔案: {os.path.basename(file)}")
-                    logger.debug(f"已嘗試尋找: {[os.path.basename(f) for f in possible_srt_files]}")
-            logger.info(f"日文轉片假名成功完成，共轉換 {converted_count} 個檔案")
-            update_status(f"✓ 片假名轉換完成（{converted_count}/{len(files)} 個檔案）", "INFO")
-            root.after(0, lambda: messagebox.showinfo("完成", f"日文轉換成片假名完成。\n\n已轉換 {converted_count} 個檔案。"))
+                    log_t("srt_not_found", level="warning", filename=os.path.basename(file))
+            log_t("katakana_completed", count=converted_count)
+            update_status(t("status.katakana_completed").format(converted=converted_count, total=len(files)), "INFO")
+            root.after(0, lambda: messagebox.showinfo(t("message.info.completed"), t("message.info.katakana_completed").format(count=converted_count)))
         except Exception as e:
-            logger.exception(f"日文轉片假名發生錯誤: {e}")
-            update_status(f"發生錯誤: {str(e)[:50]}...", "ERROR")
-            root.after(0, lambda: messagebox.showerror("錯誤", f"發生錯誤: {e}"))
+            logger.exception(t("message.error.generic_error").format(error=str(e)))
+            update_status(t("status.error").format(error=str(e)[:50]), "ERROR")
+            root.after(0, lambda: messagebox.showerror(t("message.error.title"), t("message.error.generic_error").format(error=str(e))))
 
     threading.Thread(target=run_japanese_to_katakana).start()
 
@@ -405,17 +425,22 @@ def run():
     global root, file_listbox, language_combobox, translate_combobox
     global coreml_button, cpu_button, translate_button, katakana_button, pause_button
     global add_button, add_folder_button, remove_button, log_textbox, log_queue
+    global language_label, translate_label, log_label, license_label
 
-    logger.info("啟動 Whisper GUI 應用程式")
+    # 載入語言設定
+    from config import config
+    load_language(getattr(config, 'GUI_LANGUAGE', 'zh_TW'))
+    
+    log_t("app_started")
     # 設定外觀模式和顏色主題
     ctk.set_appearance_mode("system")  # "light", "dark", 或 "system"（跟隨系統）
     ctk.set_default_color_theme("blue")  # "blue", "green", "dark-blue"
     
     # 建立主視窗
     root = ctk.CTk()
-    root.title("Whisper Transcription GUI")
+    root.title(t("window.title", "Whisper Transcription GUI"))
     root.geometry("900x750")  # 調整高度以容納日誌區域
-    logger.info("GUI 視窗已建立")
+    log_t("window_created")
     
     # 建立日誌隊列和 GUI handler
     log_queue = queue.Queue()
@@ -433,15 +458,15 @@ def run():
 
     file_button_frame = ctk.CTkFrame(root)
     file_button_frame.pack(pady=5)
-    add_button = ctk.CTkButton(file_button_frame, text="添加", command=add_files, width=100, height=32)
+    add_button = ctk.CTkButton(file_button_frame, text=t("button.add"), command=add_files, width=100, height=32)
     add_button.pack(side="left", padx=10)
-    add_folder_button = ctk.CTkButton(file_button_frame, text="添加資料夾", command=add_folder, width=120, height=32)
+    add_folder_button = ctk.CTkButton(file_button_frame, text=t("button.add_folder"), command=add_folder, width=120, height=32)
     add_folder_button.pack(side="left", padx=10)
-    remove_button = ctk.CTkButton(file_button_frame, text="刪除", command=remove_files, width=100, height=32)
+    remove_button = ctk.CTkButton(file_button_frame, text=t("button.remove"), command=remove_files, width=100, height=32)
     remove_button.pack(side="left", padx=10)
 
     # 拼讀語言
-    language_label = ctk.CTkLabel(root, text="拼讀語言:", font=ctk.CTkFont(size=14))
+    language_label = ctk.CTkLabel(root, text=t("label.language"), font=ctk.CTkFont(size=14))
     language_label.pack(pady=5)
     language_combobox = ctk.CTkComboBox(
         root, 
@@ -453,41 +478,45 @@ def run():
     language_combobox.pack(pady=5)
 
     # 翻譯語言
-    translate_label = ctk.CTkLabel(root, text="翻譯為:", font=ctk.CTkFont(size=14))
+    translate_label = ctk.CTkLabel(root, text=t("label.translate_to"), font=ctk.CTkFont(size=14))
     translate_label.pack(pady=5)
+    translate_languages = t("combobox.translate_languages", ["English", "Chinese", "Japanese", "Korean", "French", "German"])
+    # 確保 translate_languages 是列表
+    if not isinstance(translate_languages, list):
+        translate_languages = ["English", "Chinese", "Japanese", "Korean", "French", "German"]
     translate_combobox = ctk.CTkComboBox(
         root, 
-        values=["英文", "中文", "日文", "韓文", "法文", "德文"],
+        values=translate_languages,
         width=200,
         height=32
     )
-    translate_combobox.set("英文")  # 設定預設值
+    translate_combobox.set(translate_languages[0])  # 設定預設值
     translate_combobox.pack(pady=5)
 
     # CoreML 和 CPU 執行按鈕
     button_frame = ctk.CTkFrame(root)
     button_frame.pack(pady=10)
-    coreml_button = ctk.CTkButton(button_frame, text="CoreML 執行", command=coreml_whisper, width=120, height=32)
+    coreml_button = ctk.CTkButton(button_frame, text=t("button.coreml_execute"), command=coreml_whisper, width=120, height=32)
     coreml_button.pack(side="left", padx=10)
-    cpu_button = ctk.CTkButton(button_frame, text="CPU 執行", command=cpu_whisper, width=120, height=32)
+    cpu_button = ctk.CTkButton(button_frame, text=t("button.cpu_execute"), command=cpu_whisper, width=120, height=32)
     cpu_button.pack(side="left", padx=10)
-    translate_button = ctk.CTkButton(button_frame, text="翻譯", command=translate_srt_files, width=100, height=32)
+    translate_button = ctk.CTkButton(button_frame, text=t("button.translate"), command=translate_srt_files, width=100, height=32)
     translate_button.pack(side="left", padx=10)
-    pause_button = ctk.CTkButton(button_frame, text="暫停", command=pause_task, width=100, height=32)
+    pause_button = ctk.CTkButton(button_frame, text=t("button.pause"), command=pause_task, width=100, height=32)
     pause_button.pack(side="left", padx=10)
-    katakana_button = ctk.CTkButton(button_frame, text="日文轉片假名", command=japanese_to_katakana, width=140, height=32)
+    katakana_button = ctk.CTkButton(button_frame, text=t("button.katakana"), command=japanese_to_katakana, width=140, height=32)
     katakana_button.pack(side="left", padx=10)
 
     # 日誌顯示區域
     log_frame = ctk.CTkFrame(root)
     log_frame.pack(pady=10, padx=20, fill="both", expand=True)
     
-    log_label = ctk.CTkLabel(log_frame, text="執行日誌:", font=ctk.CTkFont(size=12))
+    log_label = ctk.CTkLabel(log_frame, text=t("label.log"), font=ctk.CTkFont(size=12))
     log_label.pack(anchor="w", padx=10, pady=(10, 5))
     
     log_textbox = ctk.CTkTextbox(log_frame, width=860, height=200, state="disabled", font=ctk.CTkFont(size=11))
     log_textbox.pack(pady=5, padx=10, fill="both", expand=True)
-    logger.info("日誌顯示區域已初始化")
+    log_t("log_area_initialized")
     
     # 定期檢查日誌隊列並更新 GUI
     def process_log_queue():
@@ -509,7 +538,7 @@ def run():
                 except queue.Empty:
                     break
         except Exception as e:
-            logger.error(f"處理日誌隊列時發生錯誤: {e}")
+            logger.error(t("log.log_queue_error").format(error=str(e)))
         
         # 每 100ms 檢查一次
         root.after(100, process_log_queue)
@@ -518,7 +547,7 @@ def run():
     process_log_queue()
 
     # 版權信息
-    license_label = ctk.CTkLabel(root, text="MIT License\n製作: Wayne", font=ctk.CTkFont(size=10))
+    license_label = ctk.CTkLabel(root, text=t("label.license"), font=ctk.CTkFont(size=10))
     license_label.pack(pady=10)
 
     root.mainloop()

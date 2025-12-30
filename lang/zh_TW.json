@@ -1,0 +1,89 @@
+{
+  "language_name": "繁體中文",
+  "window": {
+    "title": "Whisper Transcription GUI"
+  },
+  "button": {
+    "add": "添加",
+    "add_folder": "添加資料夾",
+    "remove": "刪除",
+    "coreml_execute": "CoreML 執行",
+    "cpu_execute": "CPU 執行",
+    "translate": "翻譯",
+    "pause": "暫停",
+    "katakana": "日文轉片假名",
+    "language": "語言"
+  },
+  "label": {
+    "language": "拼讀語言:",
+    "translate_to": "翻譯為:",
+    "log": "執行日誌:",
+    "license": "MIT License\n製作: Wayne"
+  },
+  "combobox": {
+    "translate_languages": ["英文", "中文", "日文", "韓文", "法文", "德文"]
+  },
+  "message": {
+    "warning": {
+      "title": "警告",
+      "no_files": "請添加音頻文件。"
+    },
+    "info": {
+      "completed": "完成",
+      "coreml_completed": "CoreML 轉錄完成。\n\n已處理 {count} 個檔案。",
+      "cpu_completed": "CPU 轉錄完成。\n\n已處理 {count} 個檔案。",
+      "translation_completed": "翻譯完成。\n\n已翻譯 {count} 個檔案。",
+      "katakana_completed": "日文轉換成片假名完成。\n\n已轉換 {count} 個檔案。",
+      "cancelled": "轉錄已取消。",
+      "paused": "任務已暫停，結果已保存。"
+    },
+    "error": {
+      "title": "錯誤",
+      "translation_module_error": "無法載入翻譯模組: {error}\n\n可能是 macOS 版本兼容性問題。",
+      "generic_error": "發生錯誤: {error}"
+    }
+  },
+  "status": {
+    "ready": "就緒",
+    "coreml_transcribing": "正在執行 CoreML 轉錄...",
+    "cpu_transcribing": "正在執行 CPU 轉錄...",
+    "translating": "正在翻譯...",
+    "converting_katakana": "正在轉換為片假名...",
+    "coreml_completed": "✓ CoreML 轉錄完成",
+    "cpu_completed": "✓ CPU 轉錄完成",
+    "translation_completed": "✓ 翻譯完成（{translated}/{total} 個檔案）",
+    "katakana_completed": "✓ 片假名轉換完成（{converted}/{total} 個檔案）",
+    "cancelled": "已取消",
+    "paused": "任務已暫停",
+    "error": "發生錯誤: {error}",
+    "translation_unavailable": "翻譯功能不可用"
+  },
+  "log": {
+    "app_started": "啟動 Whisper GUI 應用程式",
+    "window_created": "GUI 視窗已建立",
+    "log_area_initialized": "日誌顯示區域已初始化",
+    "user_clicked_coreml": "用戶點擊 CoreML 執行按鈕",
+    "user_clicked_cpu": "用戶點擊 CPU 執行按鈕",
+    "user_clicked_translate": "用戶點擊翻譯按鈕",
+    "user_clicked_pause": "用戶點擊暫停按鈕",
+    "added_files": "添加檔案: {count} 個",
+    "file_added": "已添加檔案: {filename}",
+    "no_files_warning": "用戶嘗試執行但沒有添加檔案",
+    "start_coreml": "開始 CoreML Whisper 轉錄，檔案數: {count}, 語言: {language}",
+    "start_cpu": "開始 CPU Whisper 轉錄，檔案數: {count}, 語言: {language}",
+    "coreml_completed": "CoreML Whisper 轉錄成功完成",
+    "cpu_completed": "CPU Whisper 轉錄成功完成",
+    "coreml_cancelled": "用戶中斷 CoreML Whisper 轉錄",
+    "cpu_cancelled": "用戶中斷 CPU Whisper 轉錄",
+    "start_translation": "開始翻譯，檔案數: {count}, 目標語言: {language}",
+    "translation_paused": "翻譯已暫停",
+    "translating_file": "翻譯檔案: {filename}",
+    "srt_not_found": "找不到對應的 SRT 檔案: {filename}",
+    "translation_completed": "翻譯成功完成，共翻譯 {count} 個檔案",
+    "conversion_paused": "轉換已暫停",
+    "converting_file": "轉換檔案: {filename}",
+    "katakana_completed": "日文轉片假名成功完成，共轉換 {count} 個檔案",
+    "log_queue_error": "處理日誌隊列時發生錯誤: {error}"
+  }
+}
+

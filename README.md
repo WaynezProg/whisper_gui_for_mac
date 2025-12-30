@@ -147,6 +147,7 @@ WHISPER_MODEL_PATH=/Users/yourname/whisper.cpp/models/ggml-large-v3.bin
 export OPENAI_API_KEY='sk-your-api-key-here'
 export WHISPER_CPP_PATH='/Users/yourname/whisper.cpp/build/bin/whisper-cli'
 export WHISPER_MODEL_PATH='/Users/yourname/whisper.cpp/models/ggml-large-v3.bin'
+export GUI_LANGUAGE='en_US'  # or 'zh_TW' for Traditional Chinese
 ```
 
 **Check Configuration**
@@ -156,6 +157,28 @@ python check_config.py
 ```
 
 **Detailed Configuration Guide**: See [docs/CONFIGURATION.md](docs/CONFIGURATION.md)
+
+#### 7. Language Settings (Optional)
+
+The application supports multiple languages for the GUI interface. You can change the language by setting the `GUI_LANGUAGE` environment variable.
+
+**Available Languages:**
+- `zh_TW` - Traditional Chinese (Default)
+- `en_US` - English
+
+**Setting Language:**
+
+**Method 1: Using .env file**
+```env
+GUI_LANGUAGE=en_US
+```
+
+**Method 2: Using Environment Variable**
+```bash
+export GUI_LANGUAGE='en_US'
+```
+
+**Note**: After changing the language setting, restart the application for the changes to take effect.
 
 ---
 
@@ -205,6 +228,12 @@ python main.py
 5. **Other Features**
    - **Japanese to Katakana**: Convert Japanese subtitles to Katakana
    - **Pause Task**: Pause currently running task
+
+6. **Language Settings**
+   - The GUI interface language can be changed via the `GUI_LANGUAGE` environment variable
+   - Available languages: `en_US` (English), `zh_TW` (Traditional Chinese)
+   - Set in `.env` file: `GUI_LANGUAGE=en_US`
+   - Restart the application after changing the language setting
 
 #### Output File Naming Rules
 
@@ -405,6 +434,7 @@ If you encounter issues or have suggestions:
 - ✅ Japanese Katakana conversion feature
 - ✅ Improved error handling
 - ✅ Complete documentation
+- ✅ Multi-language support (English, Traditional Chinese) for GUI interface and logs
 
 ---
 

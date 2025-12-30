@@ -1,0 +1,89 @@
+{
+  "language_name": "English",
+  "window": {
+    "title": "Whisper Transcription GUI"
+  },
+  "button": {
+    "add": "Add",
+    "add_folder": "Add Folder",
+    "remove": "Remove",
+    "coreml_execute": "CoreML Execute",
+    "cpu_execute": "CPU Execute",
+    "translate": "Translate",
+    "pause": "Pause",
+    "katakana": "Japanese to Katakana",
+    "language": "Language"
+  },
+  "label": {
+    "language": "Language:",
+    "translate_to": "Translate to:",
+    "log": "Execution Log:",
+    "license": "MIT License\nCreated by: Wayne"
+  },
+  "combobox": {
+    "translate_languages": ["English", "Chinese", "Japanese", "Korean", "French", "German"]
+  },
+  "message": {
+    "warning": {
+      "title": "Warning",
+      "no_files": "Please add audio files."
+    },
+    "info": {
+      "completed": "Completed",
+      "coreml_completed": "CoreML transcription completed.\n\nProcessed {count} files.",
+      "cpu_completed": "CPU transcription completed.\n\nProcessed {count} files.",
+      "translation_completed": "Translation completed.\n\nTranslated {count} files.",
+      "katakana_completed": "Japanese to Katakana conversion completed.\n\nConverted {count} files.",
+      "cancelled": "Transcription cancelled.",
+      "paused": "Task paused. Results have been saved."
+    },
+    "error": {
+      "title": "Error",
+      "translation_module_error": "Unable to load translation module: {error}\n\nThis may be a macOS version compatibility issue.",
+      "generic_error": "An error occurred: {error}"
+    }
+  },
+  "status": {
+    "ready": "Ready",
+    "coreml_transcribing": "Executing CoreML transcription...",
+    "cpu_transcribing": "Executing CPU transcription...",
+    "translating": "Translating...",
+    "converting_katakana": "Converting to Katakana...",
+    "coreml_completed": "✓ CoreML transcription completed",
+    "cpu_completed": "✓ CPU transcription completed",
+    "translation_completed": "✓ Translation completed ({translated}/{total} files)",
+    "katakana_completed": "✓ Katakana conversion completed ({converted}/{total} files)",
+    "cancelled": "Cancelled",
+    "paused": "Task paused",
+    "error": "Error occurred: {error}",
+    "translation_unavailable": "Translation feature unavailable"
+  },
+  "log": {
+    "app_started": "Starting Whisper GUI application",
+    "window_created": "GUI window created",
+    "log_area_initialized": "Log display area initialized",
+    "user_clicked_coreml": "User clicked CoreML Execute button",
+    "user_clicked_cpu": "User clicked CPU Execute button",
+    "user_clicked_translate": "User clicked Translate button",
+    "user_clicked_pause": "User clicked Pause button",
+    "added_files": "Added files: {count}",
+    "file_added": "File added: {filename}",
+    "no_files_warning": "User attempted to execute without adding files",
+    "start_coreml": "Starting CoreML Whisper transcription, file count: {count}, language: {language}",
+    "start_cpu": "Starting CPU Whisper transcription, file count: {count}, language: {language}",
+    "coreml_completed": "CoreML Whisper transcription completed successfully",
+    "cpu_completed": "CPU Whisper transcription completed successfully",
+    "coreml_cancelled": "User interrupted CoreML Whisper transcription",
+    "cpu_cancelled": "User interrupted CPU Whisper transcription",
+    "start_translation": "Starting translation, file count: {count}, target language: {language}",
+    "translation_paused": "Translation paused",
+    "translating_file": "Translating file: {filename}",
+    "srt_not_found": "SRT file not found: {filename}",
+    "translation_completed": "Translation completed successfully, translated {count} files",
+    "conversion_paused": "Conversion paused",
+    "converting_file": "Converting file: {filename}",
+    "katakana_completed": "Japanese to Katakana conversion completed successfully, converted {count} files",
+    "log_queue_error": "Error processing log queue: {error}"
+  }
+}
+

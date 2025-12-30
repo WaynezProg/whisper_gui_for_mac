@@ -72,6 +72,9 @@ class Config:
         '你是一個翻譯專家，幫我翻譯成{target_language}，禁止使用簡體中文。結果要語句通順且好懂的翻譯結果。只需要輸出翻譯結果'
     )
     
+    # ==================== GUI 設定 ====================
+    GUI_LANGUAGE = os.getenv('GUI_LANGUAGE', 'en_US')  # 預設繁體中文，可設定為 'en_US' 使用英文
+    
     @classmethod
     def validate(cls):
         """

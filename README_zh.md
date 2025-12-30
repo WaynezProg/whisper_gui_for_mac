@@ -17,6 +17,7 @@
 - 🇯🇵 **日文處理**: 日文字幕轉換為片假名
 - 📁 **批量處理**: 支援單個檔案、多個檔案或整個資料夾
 - 🎨 **現代化 UI**: 使用 CustomTkinter，支援深色/淺色主題
+- 🌐 **國際化**: GUI 界面支援多種語言（英文、繁體中文）
 
 ---
 
@@ -147,6 +148,7 @@ WHISPER_MODEL_PATH=/Users/yourname/whisper.cpp/models/ggml-large-v3.bin
 export OPENAI_API_KEY='sk-your-api-key-here'
 export WHISPER_CPP_PATH='/Users/yourname/whisper.cpp/build/bin/whisper-cli'
 export WHISPER_MODEL_PATH='/Users/yourname/whisper.cpp/models/ggml-large-v3.bin'
+export GUI_LANGUAGE='zh_TW'  # 或 'en_US' 使用英文
 ```
 
 **檢查配置**
@@ -156,6 +158,28 @@ python check_config.py
 ```
 
 **詳細配置說明**: 請參考 [docs/CONFIGURATION.md](docs/CONFIGURATION.md)
+
+#### 7. 語言設定（可選）
+
+應用程式支援多種 GUI 界面語言。您可以透過設定 `GUI_LANGUAGE` 環境變數來切換語言。
+
+**可用語言：**
+- `zh_TW` - 繁體中文（預設）
+- `en_US` - English（英文）
+
+**設定語言：**
+
+**方法一：使用 .env 檔案**
+```env
+GUI_LANGUAGE=en_US
+```
+
+**方法二：使用環境變數**
+```bash
+export GUI_LANGUAGE='en_US'
+```
+
+**注意**：更改語言設定後，需要重新啟動應用程式才能生效。
 
 ---
 
@@ -205,6 +229,12 @@ python main.py
 5. **其他功能**
    - **日文轉片假名**: 將日文字幕轉換為片假名
    - **暫停任務**: 暫停當前執行的任務
+
+6. **語言設定**
+   - GUI 界面語言可透過 `GUI_LANGUAGE` 環境變數切換
+   - 可用語言：`en_US`（英文）、`zh_TW`（繁體中文）
+   - 在 `.env` 檔案中設定：`GUI_LANGUAGE=en_US`
+   - 更改語言設定後需重新啟動應用程式
 
 #### 輸出檔案命名規則
 
@@ -405,6 +435,7 @@ MIT License
 - ✅ 日文片假名轉換功能
 - ✅ 改進錯誤處理
 - ✅ 完整的文檔
+- ✅ 多語言支援（英文、繁體中文），包含 GUI 界面和日誌訊息
 
 ---
 
