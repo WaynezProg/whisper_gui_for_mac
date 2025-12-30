@@ -158,14 +158,19 @@ python check_config.py
 
 ### 啟動應用程式
 
-**方法一：使用啟動腳本（推薦）**
+**方法一：雙擊執行（最簡單，推薦）**
+- 雙擊 `Whisper_GUI.command` 檔案即可啟動
+- 首次執行時，macOS 可能會提示安全性，請在「系統偏好設定 > 安全性與隱私」中允許執行
+- 腳本會自動偵測 `venv` 或 `.venv` 虛擬環境
+
+**方法二：使用啟動腳本**
 ```bash
 ./run.sh
 ```
 
-**方法二：手動啟動**
+**方法三：手動啟動**
 ```bash
-source venv/bin/activate
+source venv/bin/activate  # 或 source .venv/bin/activate
 python main.py
 ```
 
@@ -346,6 +351,7 @@ whisper_gui/
 ├── env.example          # 環境變數範例
 ├── run.sh               # 啟動腳本
 ├── fix.sh               # 故障排除腳本
+├── Whisper_GUI.command  # 雙擊執行檔案（macOS）
 ├── docs/                # 文檔目錄
 │   ├── README.md        # 文檔索引
 │   ├── CONFIGURATION.md # 配置說明
@@ -414,10 +420,11 @@ MIT License
 
 ## ⚠️ 注意事項
 
-1. **API Key 安全**: 請勿將 API Key 提交到公開倉庫
+1. **API Key 安全**: 請勿將 API Key 提交到公開倉庫，使用 `.env` 檔案管理
 2. **模型檔案大小**: Whisper 模型檔案較大（數 GB），請確保有足夠空間
 3. **編譯時間**: 編譯 whisper.cpp 可能需要 10-20 分鐘
 4. **系統需求**: CoreML 模式需要 Apple Silicon（M1/M2/M3）或支援 CoreML 的 Mac
+5. **外部依賴**: 應用程式需要用戶自行安裝和配置 `whisper.cpp` 和模型檔案，這些外部資源不會被打包到應用程式中
 
 ---
 

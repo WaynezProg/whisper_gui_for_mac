@@ -315,9 +315,9 @@ def generate_srt_with_coreml_whisper(audio_file_path, output_srt_path, language,
         whisper_cmd = [
             whisper_cpp_path,  # 使用配置中的 whisper.cpp 路徑
             '-m', model_path,  # 使用配置中的模型路徑
-        '-osrt',  # 輸出為 srt 文件
+            '-osrt',  # 輸出為 srt 文件
             '-of', safe_output_base,  # 指定輸出文件基名
-        '-l', language,  # 指定語言
+            '-l', language,  # 指定語言
             safe_audio_path,  # 音頻檔案直接作為參數（不使用 -f）
         ]
         

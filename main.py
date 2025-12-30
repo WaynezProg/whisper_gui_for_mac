@@ -7,7 +7,7 @@ if __name__ == "__main__":
     logger.info("Whisper GUI 應用程式啟動")
     logger.info("=" * 60)
     try:
-        gui.run()
+    gui.run()
     except KeyboardInterrupt:
         logger.info("應用程式被用戶中斷")
     except Exception as e:

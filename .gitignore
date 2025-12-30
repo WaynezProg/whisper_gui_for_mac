@@ -168,3 +168,7 @@ dist/
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Application bundles (if needed in future)
+# *.app
+# *.app/

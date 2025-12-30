@@ -4,8 +4,15 @@
 # 進入專案目錄
 cd "$(dirname "$0")"
 
-# 啟動虛擬環境
-source venv/bin/activate
+# 啟動虛擬環境（支援 venv 和 .venv）
+if [ -d "venv" ]; then
+    source venv/bin/activate
+elif [ -d ".venv" ]; then
+    source .venv/bin/activate
+else
+    echo "錯誤：找不到虛擬環境"
+    exit 1
+fi
 
 # 嘗試設定 tcl-tk 路徑（如果已安裝）
 if command -v brew &> /dev/null; then
