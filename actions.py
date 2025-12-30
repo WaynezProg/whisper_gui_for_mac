@@ -1,3 +1,7 @@
+"""
+Transcription action handlers / 轉錄動作處理模組
+Handles CoreML and CPU mode transcription / 處理 CoreML 和 CPU 模式的轉錄
+"""
 import os
 import subprocess
 import wave
@@ -12,29 +16,29 @@ from logger import logger
 
 def get_unique_output_path(base_path, suffix):
     """
-    生成不重複的輸出檔案路徑
+    Generate unique output file path / 生成不重複的輸出檔案路徑
     
     Args:
-        base_path: 基礎檔案路徑（不含副檔名）
-        suffix: 要添加的後綴（例如 'coreml', 'cpu', '英文'）
+        base_path: Base file path (without extension) / 基礎檔案路徑（不含副檔名）
+        suffix: Suffix to add (e.g., 'coreml', 'cpu', 'English') / 要添加的後綴（例如 'coreml', 'cpu', '英文'）
     
     Returns:
-        str: 不重複的檔案路徑
+        str: Unique file path / 不重複的檔案路徑
     """
-    # 如果 base_path 包含副檔名，先移除
+    # If base_path contains extension, remove it first / 如果 base_path 包含副檔名，先移除
     if '.' in os.path.basename(base_path):
         base_path_no_ext = os.path.splitext(base_path)[0]
         ext = os.path.splitext(base_path)[1]
         output_dir = os.path.dirname(base_path)
     else:
         base_path_no_ext = base_path
-        ext = '.srt'  # 預設為 .srt
+        ext = '.srt'  # Default to .srt / 預設為 .srt
         output_dir = os.path.dirname(base_path) if os.path.dirname(base_path) else '.'
     
-    # 生成檔案名稱：base_name_suffix.ext
+    # Generate filename: base_name_suffix.ext / 生成檔案名稱：base_name_suffix.ext
     output_path = os.path.join(output_dir, f"{os.path.basename(base_path_no_ext)}_{suffix}{ext}")
     
-    # 如果檔案已存在，添加數字後綴
+    # If file exists, add numeric suffix / 如果檔案已存在，添加數字後綴
     counter = 1
     original_output_path = output_path
     while os.path.exists(output_path):
@@ -48,8 +52,15 @@ def get_unique_output_path(base_path, suffix):
     return output_path
 
 def convert_mp4_to_wav(video_file_path, audio_file_path):
+    """
+    Convert MP4 video to WAV audio file / 將 MP4 影片轉換為 WAV 音頻檔案
+    
+    Args:
+        video_file_path: Path to input MP4 video file / 輸入 MP4 影片檔案路徑
+        audio_file_path: Path to output WAV audio file / 輸出 WAV 音頻檔案路徑
+    """
     logger.info(f"開始轉換 MP4 為 WAV: {os.path.basename(video_file_path)}")
-    # 檢查輸入檔案是否存在
+    # Check if input file exists / 檢查輸入檔案是否存在
     if not os.path.exists(video_file_path):
         logger.error(f"影片檔案不存在: {video_file_path}")
         raise FileNotFoundError(f"影片檔案不存在: {video_file_path}")
@@ -63,9 +74,9 @@ def convert_mp4_to_wav(video_file_path, audio_file_path):
             check=True,
             capture_output=True,
             text=True,
-            timeout=600  # 10 分鐘超時
+            timeout=600  # 10 minute timeout / 10 分鐘超時
         )
-        # 檢查輸出檔案是否成功建立
+        # Check if output file was successfully created / 檢查輸出檔案是否成功建立
         if not os.path.exists(audio_file_path):
             logger.error(f"轉換失敗：輸出檔案不存在: {audio_file_path}")
             raise RuntimeError(f"轉換失敗：輸出檔案不存在: {audio_file_path}")
@@ -76,12 +87,21 @@ def convert_mp4_to_wav(video_file_path, audio_file_path):
     except subprocess.CalledProcessError as e:
         error_msg = f"ffmpeg 轉換失敗 (退出碼: {e.returncode})"
         if e.stderr:
-            # ffmpeg 的錯誤訊息通常在 stderr
-            error_msg += f"\n錯誤訊息: {e.stderr[-1000:]}"  # 顯示最後 1000 字元
+            # ffmpeg error messages are usually in stderr / ffmpeg 的錯誤訊息通常在 stderr
+            error_msg += f"\n錯誤訊息: {e.stderr[-1000:]}"  # Show last 1000 characters / 顯示最後 1000 字元
         logger.error(f"{error_msg}")
         raise RuntimeError(error_msg)
 
 def get_audio_duration(file_path):
+    """
+    Get audio file duration in seconds / 獲取音頻檔案時長（秒）
+    
+    Args:
+        file_path: Path to audio file / 音頻檔案路徑
+    
+    Returns:
+        float: Duration in seconds, 0 if unable to determine / 時長（秒），無法確定時返回 0
+    """
     if file_path.endswith(".wav"):
         with wave.open(file_path, 'r') as audio:
             frames = audio.getnframes()
@@ -99,20 +119,20 @@ def get_audio_duration(file_path):
 
 def coreml_whisper(files, language, update_progress, pause_flag, update_status=None):
     """
-    執行 CoreML Whisper 轉錄
+    Execute CoreML Whisper transcription / 執行 CoreML Whisper 轉錄
     
     Args:
-        files: 檔案列表
-        language: 語言代碼
-        update_progress: 進度更新回調
-        pause_flag: 暫停標誌
-        update_status: 狀態更新回調（可選）
+        files: List of files / 檔案列表
+        language: Language code / 語言代碼
+        update_progress: Progress update callback / 進度更新回調
+        pause_flag: Pause flag / 暫停標誌
+        update_status: Status update callback (optional) / 狀態更新回調（可選）
     """
     logger.info(f"開始 CoreML Whisper 轉錄，共 {len(files)} 個檔案，語言: {language}")
     total_duration = sum(get_audio_duration(file) for file in files)
     logger.info(f"總音頻時長: {total_duration:.2f} 秒")
     
-    # 初始進度
+    # Initial progress / 初始進度
     update_progress(0)
     if update_status:
         update_status(f"開始轉錄 {len(files)} 個檔案...", "INFO")
@@ -124,22 +144,22 @@ def coreml_whisper(files, language, update_progress, pause_flag, update_status=N
                 update_status("任務已暫停", "WARNING")
             break
         
-        # 計算當前檔案的進度範圍
+        # Calculate progress range for current file / 計算當前檔案的進度範圍
         file_start_progress = (i / len(files)) * 100
         file_end_progress = ((i + 1) / len(files)) * 100
         
         logger.info(f"[{i+1}/{len(files)}] 處理檔案: {os.path.basename(file)}")
         if update_status:
             update_status(f"處理檔案 [{i+1}/{len(files)}]: {os.path.basename(file)}", "INFO")
-        update_progress(file_start_progress + 5)  # 開始處理，顯示 5% 進度
+        update_progress(file_start_progress + 5)  # Start processing, show 5% progress / 開始處理，顯示 5% 進度
         
         if file.endswith(".mp4"):
             audio_file_path = f"{os.path.splitext(file)[0]}.wav"
             convert_mp4_to_wav(file, audio_file_path)
             file = audio_file_path
-            update_progress(file_start_progress + 5)  # 轉換完成，顯示 5% 進度
+            update_progress(file_start_progress + 5)  # Conversion complete, show 5% progress / 轉換完成，顯示 5% 進度
         
-        # 生成不重複的輸出檔案路徑（使用 coreml 後綴）
+        # Generate unique output file path (with coreml suffix) / 生成不重複的輸出檔案路徑（使用 coreml 後綴）
         base_path = os.path.splitext(file)[0]
         output_srt_path = get_unique_output_path(base_path, 'coreml')
         
@@ -172,15 +192,15 @@ def coreml_whisper(files, language, update_progress, pause_flag, update_status=N
 
 def cpu_whisper(files, language, translate_to, update_progress, pause_flag, update_status=None):
     """
-    執行 CPU Whisper 轉錄
+    Execute CPU Whisper transcription / 執行 CPU Whisper 轉錄
     
     Args:
-        files: 檔案列表
-        language: 語言代碼
-        translate_to: 翻譯目標語言（未使用，保留向後兼容）
-        update_progress: 進度更新回調
-        pause_flag: 暫停標誌
-        update_status: 狀態更新回調（可選）
+        files: List of files / 檔案列表
+        language: Language code / 語言代碼
+        translate_to: Target language for translation (unused, kept for backward compatibility) / 翻譯目標語言（未使用，保留向後兼容）
+        update_progress: Progress update callback / 進度更新回調
+        pause_flag: Pause flag / 暫停標誌
+        update_status: Status update callback (optional) / 狀態更新回調（可選）
     """
     logger.info(f"開始 CPU Whisper 轉錄，共 {len(files)} 個檔案，語言: {language}")
     total_duration = sum(get_audio_duration(file) for file in files)

@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 """
-配置檢查工具
+Configuration check tool / 配置檢查工具
 
-執行此腳本來檢查配置是否正確設定
+Run this script to check if configuration is properly set / 執行此腳本來檢查配置是否正確設定
 """
 
 from config import config
 
 def main():
+    """
+    Main function for configuration check / 配置檢查的主函數
+    
+    Returns:
+        int: 0 if configuration is valid, 1 if errors found / 配置正確返回 0，發現錯誤返回 1
+    """
     print("=" * 60)
     print("配置檢查工具")
     print("=" * 60)
     print()
     
-    # 印出當前配置
+    # Print current configuration / 印出當前配置
     config.print_config()
     print()
     
-    # 驗證配置
+    # Validate configuration / 驗證配置
     errors = config.validate()
     
     if errors:

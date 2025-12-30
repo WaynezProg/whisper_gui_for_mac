@@ -1,4 +1,7 @@
-# main.py
+"""
+Application entry point / 應用程式入口點
+Main entry point for Whisper GUI application / Whisper GUI 應用程式的主入口點
+"""
 import gui
 from logger import logger
 

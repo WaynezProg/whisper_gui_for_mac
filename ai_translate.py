@@ -1,3 +1,7 @@
+"""
+AI translation module / AI 翻譯模組
+Provides translation functionality using OpenAI API / 使用 OpenAI API 提供翻譯功能
+"""
 from openai import OpenAI
 import srt
 import datetime
@@ -8,29 +12,29 @@ from logger import logger
 
 def get_unique_output_path(base_path, suffix):
     """
-    生成不重複的輸出檔案路徑
+    Generate unique output file path / 生成不重複的輸出檔案路徑
     
     Args:
-        base_path: 基礎檔案路徑（不含副檔名）
-        suffix: 要添加的後綴（例如 'coreml', 'cpu', '英文'）
+        base_path: Base file path (without extension) / 基礎檔案路徑（不含副檔名）
+        suffix: Suffix to add (e.g., 'coreml', 'cpu', 'English') / 要添加的後綴（例如 'coreml', 'cpu', '英文'）
     
     Returns:
-        str: 不重複的檔案路徑
+        str: Unique file path / 不重複的檔案路徑
     """
-    # 如果 base_path 包含副檔名，先移除
+    # If base_path contains extension, remove it first / 如果 base_path 包含副檔名，先移除
     if '.' in os.path.basename(base_path):
         base_path_no_ext = os.path.splitext(base_path)[0]
         ext = os.path.splitext(base_path)[1]
         output_dir = os.path.dirname(base_path)
     else:
         base_path_no_ext = base_path
-        ext = '.srt'  # 預設為 .srt
+        ext = '.srt'  # Default to .srt / 預設為 .srt
         output_dir = os.path.dirname(base_path) if os.path.dirname(base_path) else '.'
     
-    # 生成檔案名稱：base_name_suffix.ext
+    # Generate filename: base_name_suffix.ext / 生成檔案名稱：base_name_suffix.ext
     output_path = os.path.join(output_dir, f"{os.path.basename(base_path_no_ext)}_{suffix}{ext}")
     
-    # 如果檔案已存在，添加數字後綴
+    # If file exists, add numeric suffix / 如果檔案已存在，添加數字後綴
     counter = 1
     original_output_path = output_path
     while os.path.exists(output_path):
@@ -43,10 +47,15 @@ def get_unique_output_path(base_path, suffix):
     
     return output_path
 
-# 使用配置中的 API Key
-# 如果沒有設定 API Key，會在調用時報錯
+# Use API Key from config / 使用配置中的 API Key
+# Will raise error if API Key is not set / 如果沒有設定 API Key，會在調用時報錯
 def get_openai_client():
-    """取得 OpenAI 客戶端，如果 API Key 未設定則返回 None"""
+    """
+    Get OpenAI client, raises error if API Key is not set / 取得 OpenAI 客戶端，如果 API Key 未設定則拋出錯誤
+    
+    Returns:
+        OpenAI: OpenAI client instance / OpenAI 客戶端實例
+    """
     api_key = config.get_openai_api_key()
     if not api_key:
         raise ValueError(
@@ -57,17 +66,28 @@ def get_openai_client():
     return OpenAI(api_key=api_key)
 
 def translate_text(text, target_language=None, pause_flag=None):
+    """
+    Translate text using OpenAI API / 使用 OpenAI API 翻譯文字
+    
+    Args:
+        text: Text to translate / 要翻譯的文字
+        target_language: Target language / 目標語言
+        pause_flag: Pause flag / 暫停標誌
+    
+    Returns:
+        str: Translated text / 翻譯後的文字
+    """
     logger.info(f"開始翻譯文字，長度: {len(text)} 字元，目標語言: {target_language}")
-    # 取得 OpenAI 客戶端
+    # Get OpenAI client / 取得 OpenAI 客戶端
     client = get_openai_client()
     
-    # 使用配置中的參數
+    # Use parameters from config / 使用配置中的參數
     max_chunk_size = config.TRANSLATE_CHUNK_SIZE
     chunks = [text[i:i + max_chunk_size] for i in range(0, len(text), max_chunk_size)]
     logger.debug(f"文字分割為 {len(chunks)} 個區塊")
     translated_chunks = []
     
-    # 使用配置中的系統提示詞
+    # Use system prompt from config / 使用配置中的系統提示詞
     system_prompt = config.TRANSLATE_SYSTEM_PROMPT.format(
         target_language=target_language or '目標語言'
     )
@@ -97,6 +117,15 @@ def translate_text(text, target_language=None, pause_flag=None):
     return result
 
 def translate_srt(input_srt_path, output_srt_path=None, target_language=None, pause_flag=None):
+    """
+    Translate SRT subtitle file / 翻譯 SRT 字幕檔案
+    
+    Args:
+        input_srt_path: Path to input SRT file / 輸入 SRT 檔案路徑
+        output_srt_path: Path to output SRT file (if None, auto-generate) / 輸出 SRT 檔案路徑（如果為 None，自動生成）
+        target_language: Target language / 目標語言
+        pause_flag: Pause flag / 暫停標誌
+    """
     logger.info(f"開始翻譯 SRT 檔案: {os.path.basename(input_srt_path)}")
     with open(input_srt_path, 'r', encoding='utf-8') as f:
         srt_content = f.read()
@@ -117,15 +146,15 @@ def translate_srt(input_srt_path, output_srt_path=None, target_language=None, pa
     logger.debug("已合成翻譯後的字幕")
 
     if output_srt_path is None or output_srt_path.strip() == "":
-        # 使用翻譯語言作為後綴
+        # Use translation language as suffix / 使用翻譯語言作為後綴
         language_suffix = target_language or 'translated'
-        # 將語言名稱轉換為適合檔案名稱的格式
+        # Convert language name to filename-friendly format / 將語言名稱轉換為適合檔案名稱的格式
         language_suffix = language_suffix.replace(' ', '_').replace('/', '_')
         base_path = os.path.splitext(input_srt_path)[0]
         output_srt_path = get_unique_output_path(base_path, language_suffix)
         logger.info(f"未提供輸出檔案路徑，將使用預設路徑：{output_srt_path}")
 
-    # 確保輸出目錄存在
+    # Ensure output directory exists / 確保輸出目錄存在
     output_dir = os.path.dirname(output_srt_path) if os.path.dirname(output_srt_path) else '.'
     os.makedirs(output_dir, exist_ok=True)
 
